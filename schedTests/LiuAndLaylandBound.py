@@ -14,9 +14,14 @@ import include.TasksHelper as TH
 
 #The necessary Test for the Liu and Layland Bound
 def test(tasks):
+    n = tasks.shape[0]
+    U = TH.getTotalUtilization(tasks=tasks, NrTasks=n)
+    U_lub = n * ((2 ** (1 / n)) - 1)
+    
+    # for fewer tasks than 10, we use the exact computed least upper bound
+    if n < 10:
+        return U <= U_lub
 
-    #####################
-    #YOUR CODE GOES HERE#
-    #####################
+    # from 10 tasks up unlimited, we use the limes of n(2 ** 1/n - 1)
+    return U <= np.log(2) # round to 0.7 ?
 
-    return False
