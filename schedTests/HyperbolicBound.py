@@ -18,11 +18,9 @@ def test(tasks):
     """ The Hyperbolic bound is given as Π(U + 1) of all tasks: """
     # compute the hyperbolic bound as product of the U_factor of each task + 1
     hb = 1
-    for i in range(len(tasks)): # len(tasks) is 10
-        # print("Task #{}: P_i={} = D_i ={}, C_i={}".format(i, tasks[i][0], tasks[i][1], tasks[i][2]))
-        hb *= (tasks[i][2] / tasks[i][0]) + 1
+    for i in range(tasks.shape[0]): # len(tasks) is 10
+        hb *= (TH.C_i(tasks, i) / TH.P_i(tasks, i)) + 1
     # compare this computed bound to 2.0
     # if greater then no guaranty of schedulability
     # otherwise task set is schedulable
-    print("Hyperbolic bound: {}".format(hb))
     return hb <= 2.0
