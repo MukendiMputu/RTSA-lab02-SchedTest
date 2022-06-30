@@ -21,43 +21,31 @@ def test(tasks):
     # This makes implementing TDA a lot easier
     shape = tasks.shape
     sortedtasks = tasks[tasks[:, 0].argsort()]
-    isSchedulable = True
-    global set_num 
-    set_num += 1
-
-    print(f"\n======= TASK SET #{set_num} =======\n")
+    
     # For each tasks in the ordered set
-    for i in range(len(sortedtasks)):
 
-        print(f'Task #{i} {tasks[i]}:')
+    # calculate the time points for the demand function
+    t_old = 10**-3
+    i = 0
 
-        # calculate the time points for the demand function
-        # t = j * P_k for k = 1, 2,...i and j = 1, 2,...,math.ceil(P_i / P_k)
-        # list_of_t = [
-        #    j * TH.P_i(sortedtasks, k)
-        #    for k in range(i-1) 
-        #    for j in range(1, int(math.ceil(TH.D_i(sortedtasks, i) / TH.P_i(sortedtasks, k))))
-        #    ]
-        # list_of_t = [TH.P_i(sortedtasks, k-1) for k in range(i+1)]
-        list_of_t = []
-        for k in range(i):
-            list_of_t.append(TH.P_i(sortedtasks, k-1))
+    while True:
+        t_new = workload_func(sortedtasks, i, t_old)
+        # if the workload of task i exceeds the deadline
+        if t_new > TH.D_i(sortedtasks, i):
+            return False # task not schedulable
 
-        print(f'\t list of t: {list_of_t}')
-
-        # at any time t between 0 and and TH.P_i
-        for j in range(len(list_of_t)):
-        # for t in range(int(TH.C_i(sortedtasks, i)), int(TH.P_i(sortedtasks, i)+1), int(step)):
-
-            # if the demand for CPU time of task i exceeds the available time t
-            if time_demand_func(sortedtasks, i, list_of_t[j]) > list_of_t[j]:
-                isSchedulable = False # then the task i will not meet its deadline, hence taskset not schedulable
-            print(f'\t time-demand for t := {list_of_t[j]} ---> {time_demand_func(sortedtasks, i, list_of_t[j])}  is schedulable: {isSchedulable}')
-    return isSchedulable
+        if t_new == t_old:
+            i += 1
+            t_old = 10**-3
+            #  chech array out of bounds
+            if i == len(sortedtasks):
+                return True
+        t_old = t_new
+    
 
 
-def time_demand_func(tasks, i, t):
+def workload_func(tasks, i, t):
     sum = 0
-    for k in range(i-1):
+    for k in range(i):
         sum += math.ceil(t / TH.P_i(tasks, k)) * TH.C_i(tasks, k)
     return TH.C_i(tasks, i) + sum
